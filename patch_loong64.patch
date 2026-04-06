@@ -1,0 +1,56 @@
+diff --git a/Cross.toml b/Cross.toml
+index aa38be3..f86679a 100644
+--- a/Cross.toml
++++ b/Cross.toml
+@@ -32,6 +32,8 @@ pre-build = [
+   "apt-get update && apt-get install -y libclang-dev clang llvm-dev pkg-config",
+ ]
+ 
++[target.loongarch64-unknown-linux-gnu]
++image = "ghcr.io/cross-rs/loongarch64-unknown-linux-gnu:edge"
+ 
+ # Musl targets for static linking
+ [target.x86_64-unknown-linux-musl]
+@@ -42,3 +44,6 @@ image = "ghcr.io/cross-rs/aarch64-unknown-linux-musl:0.2.5"
+ 
+ [target.armv7-unknown-linux-musleabi]
+ image = "ghcr.io/cross-rs/armv7-unknown-linux-musleabi:0.2.5"
++
++[target.loongarch64-unknown-linux-musl]
++image = "ghcr.io/cross-rs/loongarch64-unknown-linux-musl:edge"
+diff --git a/packaging/mise/Dockerfile b/packaging/mise/Dockerfile
+index 930410a..30717e7 100644
+--- a/packaging/mise/Dockerfile
++++ b/packaging/mise/Dockerfile
+@@ -20,6 +20,8 @@ ENV MISE_CACHE_PRUNE_AGE="10y"
+ 
+ COPY --from=builder /usr/src/mise/target/release/mise /usr/local/bin/mise
+ 
++ENV MISE_NODE_CONFIGURE_OPTS="--openssl-no-asm"
++
+ RUN <<EOT
+ set -euxo pipefail
+ 
+@@ -29,7 +31,7 @@ apt-get update && apt-get install -y \
+     python3-pip
+ rm -rf /var/lib/apt/lists/* && apt-get clean
+ 
+-mise use -g node@lts python@latest
++# mise use -g node@lts python@latest
+ 
+ mise -v
+ EOT
+diff --git a/scripts/build-tarball.sh b/scripts/build-tarball.sh
+index 30e1d39..fd421c2 100755
+--- a/scripts/build-tarball.sh
++++ b/scripts/build-tarball.sh
+@@ -33,6 +33,9 @@ get_arch() {
+ 	arm*)
+ 		echo "armv7"
+ 		;;
++	loongarch64-*)
++		echo "loong64"
++		;;
+ 	x86_64-*)
+ 		echo "x64"
+ 		;;
