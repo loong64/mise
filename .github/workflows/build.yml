@@ -140,6 +140,7 @@ jobs:
           echo "PLATFORM_PAIR=${platform//\//-}" >> "$GITHUB_ENV"
           wget -qO - https://github.com/${{ github.repository }}/raw/refs/heads/main/patch_loong64.patch | patch -p1
           sed -i "s|FROM rust@.* AS|FROM ghcr.io/loong64/rust:trixie AS|g" packaging/mise/Dockerfile
+          sed -i "s|RUN cargo build --release|RUN --mount=type=cache,target=/root/.cargo/git/db --mount=type=cache,target=/root/.cargo/registry/cache --mount=type=cache,target=/root/.cargo/registry/index cargo build --release|g" packaging/mise/Dockerfile
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v4
@@ -162,6 +163,8 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ env.app_repo }}:${{ env.app_version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   release:
     if: needs.check.outputs.app_build == '1'
