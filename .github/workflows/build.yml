@@ -163,8 +163,8 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ env.app_repo }}:${{ env.app_version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ env.app_repo }}-cache:${{ matrix.platform.tag_suffix }}_main
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ env.app_repo }}-cache:${{ matrix.platform.tag_suffix }}_main,mode=max
 
   release:
     if: needs.check.outputs.app_build == '1'
