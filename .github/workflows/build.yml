@@ -91,6 +91,7 @@ jobs:
       - name: Prepare
         run: |
           wget -qO - https://github.com/${{ github.repository }}/raw/refs/heads/main/patch_loong64.patch | patch -p1
+          sed -i 's/GLIBC_FLOOR=2.18/GLIBC_FLOOR=2.36/g' scripts/build-tarball.sh
 
       - name: build-tarball ${{matrix.target}}
         uses: nick-fields/retry@v3
